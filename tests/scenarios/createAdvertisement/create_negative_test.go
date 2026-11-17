@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"api-tests-template/internal/assertions"
+	"api-tests-template/internal/constants/bugs"
 	"api-tests-template/internal/constants/files"
 	"api-tests-template/internal/constants/messages"
 	advManager "api-tests-template/internal/managers/advertisements"
@@ -23,8 +24,6 @@ const (
 	descriptionRequiredMessage = "description is required"
 	priceRangeMessage          = "price must be between 0 and 1000000 inclusive"
 	quantityRangeMessage       = "quantity must be between 1 and 100 inclusive"
-
-	onlySpacesBug = "BUG: обязательное поле из одних пробелов принимается, объявление создаётся с кодом 201 вместо 400"
 )
 
 // Negative: создание объявления без обязательных параметров или с некорректными параметрами
@@ -43,13 +42,13 @@ func (s *TestSuite) TestCreateAdvertisementWithInvalidParams() {
 	}{
 		{name: "без названия", field: advModels.FieldTitle, deleteField: true, photos: onePhoto, expectedMessage: titleRequiredMessage},
 		{name: "пустое название", field: advModels.FieldTitle, value: "", photos: onePhoto, expectedMessage: titleRequiredMessage},
-		{name: "название из пробелов", field: advModels.FieldTitle, value: "   ", photos: onePhoto, expectedMessage: titleRequiredMessage, bug: onlySpacesBug},
+		{name: "название из пробелов", field: advModels.FieldTitle, value: "   ", photos: onePhoto, expectedMessage: titleRequiredMessage, bug: bugs.OnlySpacesAccepted},
 		{name: "название длиннее 50 символов", field: advModels.FieldTitle, value: strings.Repeat("а", titleMaxLength+1), photos: onePhoto,
 			expectedMessage: "title must not exceed 50 characters provided 51"},
 		{name: "без описания", field: advModels.FieldDescription, deleteField: true, photos: onePhoto, expectedMessage: descriptionRequiredMessage},
 		{name: "пустое описание", field: advModels.FieldDescription, value: "", photos: onePhoto, expectedMessage: descriptionRequiredMessage},
 		{name: "описание из пробелов", field: advModels.FieldDescription, value: "   ", photos: onePhoto, expectedMessage: descriptionRequiredMessage,
-			bug: onlySpacesBug},
+			bug: bugs.OnlySpacesAccepted},
 		{name: "описание длиннее 500 символов", field: advModels.FieldDescription, value: strings.Repeat("о", descriptionMaxLength+1), photos: onePhoto,
 			expectedMessage: "description must be between 1 and 500 characters"},
 		{name: "отрицательная цена", field: advModels.FieldPrice, value: "-1", photos: onePhoto, expectedMessage: priceRangeMessage},

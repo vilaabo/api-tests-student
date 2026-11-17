@@ -15,8 +15,16 @@ type Advertisement struct {
 	Price       float64 `json:"price"`
 	Quantity    int     `json:"quantity"`
 	Photos      []Photo `json:"photos"`
+	User        User    `json:"user"`
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
+}
+
+type User struct {
+	Id        string `json:"id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type Photo struct {
