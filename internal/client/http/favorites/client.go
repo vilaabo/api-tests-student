@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"api-tests-template/internal/constants/limits"
 	"api-tests-template/internal/constants/path"
 	apiRunner "api-tests-template/internal/helpers/api-runner"
 	"api-tests-template/internal/managers/favorites/models"
@@ -12,7 +13,7 @@ import (
 // HttpGetFavorites выполняет GET-запрос получения избранного пользователя
 func HttpGetFavorites(t *testing.T, token string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(path.FavoritesPath).
-		Query("page_size", "50"). // максимум по swagger, в избранном тоже не больше 50 объявлений
+		Query("page_size", limits.MaxPageSize).
 		Expect(t).
 		End().Response
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"api-tests-template/internal/constants/limits"
 	"api-tests-template/internal/constants/path"
 	apiRunner "api-tests-template/internal/helpers/api-runner"
 	"api-tests-template/internal/managers/advertisements/models"
@@ -13,7 +14,7 @@ import (
 func HttpGetAdvertisements(t *testing.T, token, textForSearch string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementsPath).
 		Query("search", textForSearch).
-		Query("limit", "50"). // максимум по swagger, страхует от пагинации
+		Query("limit", limits.MaxPageSize). // страхует от пагинации
 		Expect(t).
 		Status(http.StatusOK).
 		End().Response
@@ -24,7 +25,7 @@ func HttpGetOldestAdvertisements(t *testing.T, token string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementsPath).
 		Query("sort_by", "created_at").
 		Query("sort_order", "asc").
-		Query("limit", "50").
+		Query("limit", limits.MaxPageSize).
 		Expect(t).
 		End().Response
 }

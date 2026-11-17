@@ -24,6 +24,7 @@ const (
 // retryTransport повторяет запрос, если сервер ответил 503: так nginx ограничивает частоту запросов
 type retryTransport struct{}
 
+// RoundTrip отправляет запрос и при ответе 503 повторяет его с паузой
 func (rt retryTransport) RoundTrip(request *http.Request) (*http.Response, error) {
 	var body []byte
 	if request.Body != nil {
