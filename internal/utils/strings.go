@@ -2,6 +2,7 @@ package utils
 
 import "unicode"
 
+// MixCase чередует регистр букв в строке: первая заглавная, вторая строчная и т.д.
 func MixCase(s string) string {
 	runes := []rune(s)
 	upper := true

@@ -11,6 +11,7 @@ import (
 	"api-tests-template/internal/managers/advertisements/models"
 )
 
+// GetAdvertisementsList возвращает список объявлений по поисковому запросу, ожидает 200
 func GetAdvertisementsList(t *testing.T, token, text string) models.AdvertisementsList {
 	raw := advertisements.HttpGetAdvertisements(t, token, text)
 	defer raw.Body.Close()
