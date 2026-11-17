@@ -5,4 +5,6 @@ const (
 	MyAdvertisementsPath = "/my/advertisements"
 	AdvertisementsPath   = "/advertisements"
 	AdvertisementPath    = "/advertisement"
+	AuthRegisterPath     = "/auth/register"
+	FavoritesPath        = "/favorites"
 )
