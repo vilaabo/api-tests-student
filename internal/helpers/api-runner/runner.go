@@ -21,35 +21,43 @@ const (
 	retryDelay  = time.Second
 )
 
-// retryTransport повторяет запрос, если сервер ответил 503: так nginx ограничивает частоту запросов
+// retryTransport повторяет запрос, если сервер ответил 503 (так сервер ограничивает частоту запросов)
 type retryTransport struct{}
 
 // RoundTrip отправляет запрос и при ответе 503 повторяет его с паузой
 func (rt retryTransport) RoundTrip(request *http.Request) (*http.Response, error) {
-	var body []byte
+	requestBody := []byte{}
 	if request.Body != nil {
-		var err error
-		body, err = io.ReadAll(request.Body)
+		bodyBytes, err := io.ReadAll(request.Body)
 		if err != nil {
 			return nil, err
 		}
 		request.Body.Close()
+		requestBody = bodyBytes
 	}
 
-	for attempt := 1; ; attempt++ {
-		attemptRequest := request.Clone(request.Context())
-		attemptRequest.Body = io.NopCloser(bytes.NewReader(body))
+	var response *http.Response
+	var err error
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		newRequest := request.Clone(request.Context())
+		newRequest.Body = io.NopCloser(bytes.NewReader(requestBody))
 
-		response, err := http.DefaultTransport.RoundTrip(attemptRequest)
-		if err != nil || response.StatusCode != http.StatusServiceUnavailable || attempt == maxAttempts {
-			return response, err
+		response, err = http.DefaultTransport.RoundTrip(newRequest)
+		if err != nil {
+			return nil, err
 		}
-		response.Body.Close()
+		if response.StatusCode != http.StatusServiceUnavailable {
+			return response, nil
+		}
 
-		delay := time.Duration(attempt) * retryDelay
-		log.Printf("Сервер ответил 503, повторяем запрос через %v (попытка %d из %d)", delay, attempt+1, maxAttempts)
-		time.Sleep(delay)
+		if attempt < maxAttempts {
+			response.Body.Close()
+			waitTime := time.Duration(attempt) * retryDelay
+			log.Printf("Сервер ответил 503, ждём %v и повторяем запрос (попытка %d из %d)", waitTime, attempt+1, maxAttempts)
+			time.Sleep(waitTime)
+		}
 	}
+	return response, err
 }
 
 var httpClient = &http.Client{
