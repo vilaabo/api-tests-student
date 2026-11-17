@@ -30,6 +30,20 @@ func GetFavorites(t *testing.T, token string) models.FavoritesList {
 	return favoritesList
 }
 
+// GetFavoritesWithError запрашивает избранное, проверяет код ответа и возвращает тело ответа
+func GetFavoritesWithError(t *testing.T, token string, expectedStatusCode int) string {
+	favoritesRawResponse := favorites.HttpGetFavorites(t, token)
+	defer favoritesRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(favoritesRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, expectedStatusCode, favoritesRawResponse.StatusCode,
+		"Неожиданный код ответа при получении избранного, тело ответа: %s", string(respArray))
+
+	return string(respArray)
+}
+
 // AddFavorite добавляет объявление в избранное, проверяет код ответа и возвращает тело ответа
 func AddFavorite(t *testing.T, token, adId string, expectedStatusCode int) string {
 	request := models.AddFavoriteRequest{
