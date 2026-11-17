@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"api-tests-template/internal/assertions"
 	"api-tests-template/internal/constants/files"
 	advManager "api-tests-template/internal/managers/advertisements"
 	advModels "api-tests-template/internal/managers/advertisements/models"
@@ -49,5 +50,25 @@ func (s *TestSuite) TestCreateAdvertisementWithAllParams() {
 		require.Equal(s.T(), adQuantity, strconv.Itoa(advertisement.Quantity), "Количество не совпадает")
 		require.Len(s.T(), advertisement.Photos, len(photos), "Количество фото не совпадает")
 		base.Check("Параметры объявления совпадают с переданными при создании")
+	})
+
+	s.Run("Объявление находится поиском по полному названию", func() {
+		base.Step("Ищем объявления по названию «" + title + "»")
+		list := advManager.GetAdvertisementsList(s.T(), s.loginData.Token, title)
+
+		assertions.ContainsAdvertisementByTitle(s.T(), list.Items, title)
+		base.Check("Объявление найдено в поиске")
+	})
+
+	s.Run("Фотографии загружены и доступны", func() {
+		base.Step("Получаем фотографии объявления")
+		advertisementPhotos := advManager.GetAdvertisementPhotos(s.T(), s.loginData.Token, createdAdvertisement.Id)
+
+		require.Len(s.T(), advertisementPhotos, len(photos), "Количество фото не совпадает")
+		for _, photo := range advertisementPhotos {
+			require.NotEmpty(s.T(), photo.Id, "У фото пустой id")
+			require.NotEmpty(s.T(), photo.Url, "У фото пустой url")
+		}
+		base.Check("Все фото на месте, у каждого есть url")
 	})
 }

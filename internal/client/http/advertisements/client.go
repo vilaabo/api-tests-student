@@ -39,6 +39,13 @@ func HttpGetAdvertisementById(t *testing.T, id string) *http.Response {
 		End().Response
 }
 
+// HttpGetAdvertisementPhotos выполняет GET-запрос получения фотографий объявления
+func HttpGetAdvertisementPhotos(t *testing.T, token, id string) *http.Response {
+	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementsPath + "/" + id + "/photos").
+		Expect(t).
+		End().Response
+}
+
 // HttpDeleteAdvertisement выполняет DELETE-запрос удаления объявления по id
 func HttpDeleteAdvertisement(t *testing.T, token, id string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Delete(path.AdvertisementPath).

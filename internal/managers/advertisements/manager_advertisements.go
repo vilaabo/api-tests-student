@@ -62,6 +62,24 @@ func GetAdvertisementById(t *testing.T, id string) models.Advertisement {
 	return advertisement
 }
 
+// GetAdvertisementPhotos возвращает фотографии объявления, ожидает 200
+func GetAdvertisementPhotos(t *testing.T, token, id string) []models.Photo {
+	photosRawResponse := advertisements.HttpGetAdvertisementPhotos(t, token, id)
+	defer photosRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(photosRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusOK, photosRawResponse.StatusCode,
+		"Не удалось получить фото объявления %s, ответ сервера: %s", id, string(respArray))
+
+	photos := []models.Photo{}
+	err := json.Unmarshal(respArray, &photos)
+	require.NoError(t, err)
+
+	return photos
+}
+
 // DeleteAdvertisement удаляет объявление по id, ожидает 204
 func DeleteAdvertisement(t *testing.T, token, id string) {
 	deleteAdvertisementRawResponse := advertisements.HttpDeleteAdvertisement(t, token, id)
