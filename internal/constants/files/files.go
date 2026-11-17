@@ -1,6 +1,7 @@
 package files
 
 const (
-	// путь считается от папки с тестом: tests/scenarios/<сценарий>
-	PhotoPath = "../../../testdata/photo.png"
+	// пути считаются от папки с тестом: tests/scenarios/<сценарий>
+	PhotoPath    = "../../../testdata/photo.png"
+	TextFilePath = "../../../testdata/not_image.txt"
 )

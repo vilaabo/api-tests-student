@@ -10,7 +10,18 @@ import (
 
 	"api-tests-template/internal/client/http/advertisements"
 	"api-tests-template/internal/managers/advertisements/models"
+	"api-tests-template/internal/utils"
 )
+
+// NewAdvertisementFields возвращает заполненные поля для создания объявления с уникальным названием
+func NewAdvertisementFields() map[string]string {
+	return map[string]string{
+		models.FieldTitle:       "Объявление автотеста " + utils.RandomString(8),
+		models.FieldDescription: "Описание объявления от автотеста",
+		models.FieldPrice:       "1500",
+		models.FieldQuantity:    "2",
+	}
+}
 
 // GetAdvertisementsList возвращает список объявлений по поисковому запросу, ожидает 200
 func GetAdvertisementsList(t *testing.T, token, text string) models.AdvertisementsList {
@@ -42,6 +53,28 @@ func CreateAdvertisement(t *testing.T, token string, fields map[string]string, p
 	require.NoError(t, err)
 
 	return advertisement
+}
+
+// CreateAdvertisementWithError отправляет запрос на создание объявления, проверяет код ответа и возвращает тело ответа
+func CreateAdvertisementWithError(t *testing.T, token string, fields map[string]string, photos []string, expectedStatusCode int) string {
+	createAdvertisementRawResponse := advertisements.HttpPostAdvertisement(t, token, fields, photos)
+	defer createAdvertisementRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(createAdvertisementRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	// если объявление всё-таки создалось, удаляем его, чтобы не оставлять мусор
+	if createAdvertisementRawResponse.StatusCode == http.StatusCreated {
+		createdAdvertisement := models.Advertisement{}
+		err := json.Unmarshal(respArray, &createdAdvertisement)
+		require.NoError(t, err)
+		DeleteAdvertisement(t, token, createdAdvertisement.Id)
+	}
+
+	require.Equalf(t, expectedStatusCode, createAdvertisementRawResponse.StatusCode,
+		"Неожиданный код ответа, тело ответа: %s", string(respArray))
+
+	return string(respArray)
 }
 
 // GetAdvertisementById возвращает объявление по id, ожидает 200
