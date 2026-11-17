@@ -1,7 +1,6 @@
 package createAdvertisement
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -24,8 +23,10 @@ func TestSuiteRun(t *testing.T) {
 func (s *TestSuite) SetupSuite() {
 	base.SetupSuite()
 
-	base.Precondition("Авторизация пользователя с кредами из переменных окружения")
-	s.loginData = auth.Login(s.T(), os.Getenv("TEST_LOGIN"), os.Getenv("TEST_PASSWORD"))
+	// не основной аккаунт: пока объявление создаётся, оно уже видно в «Моих объявлениях» без фото,
+	// и тест myAdvertisement при параллельном запуске падает
+	base.Precondition("Регистрация пользователя, от имени которого создаём объявления")
+	s.loginData = auth.RegisterRandomUser(s.T(), "Author")
 }
 
 func (s *TestSuite) TearDownSuite() {

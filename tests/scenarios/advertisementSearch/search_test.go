@@ -29,6 +29,7 @@ const (
 type TestSuite struct {
 	suite.Suite
 	loginData     models.LoginOkResponse
+	author        models.LoginOkResponse
 	advertisement advModels.Advertisement
 }
 
@@ -48,15 +49,18 @@ func (s *TestSuite) SetupSuite() {
 	base.Precondition("Авторизация пользователя с кредами из переменных окружения")
 	s.loginData = auth.Login(s.T(), os.Getenv("TEST_LOGIN"), os.Getenv("TEST_PASSWORD"))
 
-	base.Precondition("Создаём объявление «" + existingAdTitle + "», которое будем искать")
+	base.Precondition("Регистрация автора объявления, чтобы не создавать объявления на основном аккаунте")
+	s.author = auth.RegisterRandomUser(s.T(), "Author")
+
+	base.Precondition("Автор создаёт объявление «" + existingAdTitle + "», которое будем искать")
 	fields := advList.NewAdvertisementFields()
 	fields[advModels.FieldTitle] = existingAdTitle
-	s.advertisement = advList.CreateAdvertisement(s.T(), s.loginData.Token, fields, []string{files.PhotoPath})
+	s.advertisement = advList.CreateAdvertisement(s.T(), s.author.Token, fields, []string{files.PhotoPath})
 }
 
 func (s *TestSuite) TearDownSuite() {
 	base.Precondition("Удаляем объявление, созданное для поиска")
-	advList.DeleteAdvertisement(s.T(), s.loginData.Token, s.advertisement.Id)
+	advList.DeleteAdvertisement(s.T(), s.author.Token, s.advertisement.Id)
 
 	base.TearDownSuite()
 }
