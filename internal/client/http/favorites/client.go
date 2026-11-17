@@ -26,6 +26,15 @@ func HttpPostFavorite(t *testing.T, token string, request models.AddFavoriteRequ
 		End().Response
 }
 
+// HttpPostFavoritesBulk выполняет POST-запрос добавления в избранное сразу нескольких объявлений
+func HttpPostFavoritesBulk(t *testing.T, token string, request models.BulkAddFavoritesRequest) *http.Response {
+	return apiRunner.GetRunner().Auth(token).Create().Post(path.FavoritesBulkPath).
+		ContentType("application/json").
+		JSON(request).
+		Expect(t).
+		End().Response
+}
+
 // HttpDeleteFavorite выполняет DELETE-запрос удаления объявления из избранного
 func HttpDeleteFavorite(t *testing.T, token, adId string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Delete(path.FavoritesPath + "/" + adId).

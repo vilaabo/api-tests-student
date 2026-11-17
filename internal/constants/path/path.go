@@ -7,4 +7,5 @@ const (
 	AdvertisementPath    = "/advertisement"
 	AuthRegisterPath     = "/auth/register"
 	FavoritesPath        = "/favorites"
+	FavoritesBulkPath    = "/favorites/bulk"
 )

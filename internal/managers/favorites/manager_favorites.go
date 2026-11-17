@@ -62,6 +62,28 @@ func AddFavorite(t *testing.T, token, adId string, expectedStatusCode int) strin
 	return string(respArray)
 }
 
+// AddFavoritesBulk добавляет в избранное сразу несколько объявлений одним запросом, ожидает 200
+func AddFavoritesBulk(t *testing.T, token string, adIds []string) models.BulkAddFavoritesResult {
+	request := models.BulkAddFavoritesRequest{
+		AdvertisementIds: adIds,
+	}
+
+	bulkRawResponse := favorites.HttpPostFavoritesBulk(t, token, request)
+	defer bulkRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(bulkRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusOK, bulkRawResponse.StatusCode,
+		"Не удалось добавить объявления в избранное, ответ сервера: %s", string(respArray))
+
+	bulkResult := models.BulkAddFavoritesResult{}
+	err := json.Unmarshal(respArray, &bulkResult)
+	require.NoError(t, err)
+
+	return bulkResult
+}
+
 // RemoveFavorite удаляет объявление из избранного, проверяет код ответа и возвращает тело ответа
 func RemoveFavorite(t *testing.T, token, adId string, expectedStatusCode int) string {
 	removeFavoriteRawResponse := favorites.HttpDeleteFavorite(t, token, adId)

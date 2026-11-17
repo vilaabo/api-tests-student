@@ -37,6 +37,24 @@ func GetAdvertisementsList(t *testing.T, token, text string) models.Advertisemen
 	return resp
 }
 
+// GetOldestAdvertisements возвращает 50 самых старых объявлений из ленты, ожидает 200
+func GetOldestAdvertisements(t *testing.T, token string) models.AdvertisementsList {
+	advertisementsRawResponse := advertisements.HttpGetOldestAdvertisements(t, token)
+	defer advertisementsRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(advertisementsRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusOK, advertisementsRawResponse.StatusCode,
+		"Не удалось получить ленту объявлений, ответ сервера: %s", string(respArray))
+
+	advertisementsList := models.AdvertisementsList{}
+	err := json.Unmarshal(respArray, &advertisementsList)
+	require.NoError(t, err)
+
+	return advertisementsList
+}
+
 // CreateAdvertisement создаёт объявление и возвращает его, ожидает 201
 func CreateAdvertisement(t *testing.T, token string, fields map[string]string, photos []string) models.Advertisement {
 	createAdvertisementRawResponse := advertisements.HttpPostAdvertisement(t, token, fields, photos)

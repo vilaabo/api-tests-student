@@ -12,6 +12,13 @@ type FavoritesList struct {
 	TotalPages int            `json:"total_pages"`
 }
 
+type BulkAddFavoritesResult struct {
+	Added        []string `json:"added"`
+	Skipped      []string `json:"skipped"`
+	NotFound     []string `json:"not_found"`
+	LimitReached bool     `json:"limit_reached"`
+}
+
 type FavoriteItem struct {
 	FavoriteId    string                  `json:"favorite_id"`
 	AddedAt       string                  `json:"added_at"`

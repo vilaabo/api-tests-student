@@ -19,6 +19,16 @@ func HttpGetAdvertisements(t *testing.T, token, textForSearch string) *http.Resp
 		End().Response
 }
 
+// HttpGetOldestAdvertisements выполняет GET-запрос ленты, отсортированной от старых объявлений к новым
+func HttpGetOldestAdvertisements(t *testing.T, token string) *http.Response {
+	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementsPath).
+		Query("sort_by", "created_at").
+		Query("sort_order", "asc").
+		Query("limit", "50").
+		Expect(t).
+		End().Response
+}
+
 // HttpPostAdvertisement выполняет POST-запрос создания объявления с полями формы и фотографиями
 func HttpPostAdvertisement(t *testing.T, token string, fields map[string]string, photos []string) *http.Response {
 	request := apiRunner.GetRunner().Auth(token).Create().Post(path.AdvertisementPath)
