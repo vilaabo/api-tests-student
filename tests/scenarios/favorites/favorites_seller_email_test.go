@@ -13,7 +13,7 @@ import (
 	base "api-tests-template/tests"
 )
 
-// Negative: в избранном покупатель видит имя продавца, но не его email
+// Positive: в избранном покупатель видит имя продавца, но не его email
 func (s *TestSuite) TestFavoritesWithoutSellerEmail() {
 	advertisement := s.createSellerAdvertisement()
 	defer advManager.DeleteAdvertisement(s.T(), s.seller.Token, advertisement.Id)

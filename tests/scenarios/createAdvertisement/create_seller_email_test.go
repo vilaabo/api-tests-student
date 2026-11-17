@@ -10,7 +10,7 @@ import (
 	base "api-tests-template/tests"
 )
 
-// Negative: объявление без авторизации отдаётся с именем продавца, но без его email
+// Positive: объявление без авторизации отдаётся с именем продавца, но без его email
 func (s *TestSuite) TestAdvertisementWithoutSellerEmail() {
 	createdAdvertisement := advManager.CreateAdvertisement(s.T(), s.loginData.Token, advManager.NewAdvertisementFields(),
 		[]string{files.PhotoPath})
