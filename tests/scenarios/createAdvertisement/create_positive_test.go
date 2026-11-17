@@ -31,9 +31,9 @@ func (s *TestSuite) TestCreateAdvertisementWithAllParams() {
 		advModels.FieldPrice:       adPrice,
 		advModels.FieldQuantity:    adQuantity,
 	}
-	photos := []string{files.PhotoPath, files.PhotoPath, files.PhotoPath}
+	photos := []string{files.PhotoPath, files.JpegPhotoPath, files.PhotoPath}
 
-	base.Step("Создаём объявление «" + title + "» с тремя фото")
+	base.Step("Создаём объявление «" + title + "» с тремя фото (PNG и JPEG)")
 	createdAdvertisement := advManager.CreateAdvertisement(s.T(), s.loginData.Token, fields, photos)
 	defer advManager.DeleteAdvertisement(s.T(), s.loginData.Token, createdAdvertisement.Id)
 	base.Check("Объявление создано, id: " + createdAdvertisement.Id)
