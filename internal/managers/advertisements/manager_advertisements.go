@@ -3,6 +3,7 @@ package advertisements
 import (
 	"encoding/json"
 	"io"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -23,4 +24,52 @@ func GetAdvertisementsList(t *testing.T, token, text string) models.Advertisemen
 	require.NoError(t, json.Unmarshal(body, &resp))
 
 	return resp
+}
+
+// CreateAdvertisement создаёт объявление и возвращает его, ожидает 201
+func CreateAdvertisement(t *testing.T, token string, fields map[string]string, photos []string) models.Advertisement {
+	createAdvertisementRawResponse := advertisements.HttpPostAdvertisement(t, token, fields, photos)
+	defer createAdvertisementRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(createAdvertisementRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusCreated, createAdvertisementRawResponse.StatusCode,
+		"Объявление не создалось, ответ сервера: %s", string(respArray))
+
+	advertisement := models.Advertisement{}
+	err := json.Unmarshal(respArray, &advertisement)
+	require.NoError(t, err)
+
+	return advertisement
+}
+
+// GetAdvertisementById возвращает объявление по id, ожидает 200
+func GetAdvertisementById(t *testing.T, id string) models.Advertisement {
+	advertisementRawResponse := advertisements.HttpGetAdvertisementById(t, id)
+	defer advertisementRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(advertisementRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusOK, advertisementRawResponse.StatusCode,
+		"Не удалось получить объявление %s, ответ сервера: %s", id, string(respArray))
+
+	advertisement := models.Advertisement{}
+	err := json.Unmarshal(respArray, &advertisement)
+	require.NoError(t, err)
+
+	return advertisement
+}
+
+// DeleteAdvertisement удаляет объявление по id, ожидает 204
+func DeleteAdvertisement(t *testing.T, token, id string) {
+	deleteAdvertisementRawResponse := advertisements.HttpDeleteAdvertisement(t, token, id)
+	defer deleteAdvertisementRawResponse.Body.Close()
+
+	respArray, errResponse := io.ReadAll(deleteAdvertisementRawResponse.Body)
+	require.NoError(t, errResponse)
+
+	require.Equalf(t, http.StatusNoContent, deleteAdvertisementRawResponse.StatusCode,
+		"Не удалось удалить объявление %s, ответ сервера: %s", id, string(respArray))
 }
