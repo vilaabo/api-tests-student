@@ -6,6 +6,10 @@ import (
 	"api-tests-template/internal/utils"
 )
 
+const (
+	InvalidToken = "incorrect_token"
+)
+
 // SetupSuite действия перед запуском сьюта с тестами
 func SetupSuite() {
 	log.Println("Init environment variables")
